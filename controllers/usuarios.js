@@ -1,58 +1,84 @@
+const { response, request } = require("express");
 
+const bcryptjs = require("bcryptjs");
 
-const { response, request} = require('express');
+// Usuario en mayuscula para crear modelos
+const Usuario = require("../models/usuario");
 
-const usuariosGet = (req = request, res = response) => {
-    const query = req.query;
-    res.json({
-  
-      msg: 'get API controllador',
-      query
-    });
+const usuariosGet = async (req = request, res = response) => {
+  const { limite = 5, desde = 0 } = req.query;
+
+  const query = { estado: true };
+
+  const [total, usuarios] = await Promise.all([
+    Usuario.countDocuments(query),
+    Usuario.find(query).skip(Number(desde)).limit(Number(limite)),
+  ]);
+
+  res.json({
+    total,
+    usuarios
+  });
+};
+
+const usuariosPost = async (req, res = response) => {
+  const { nombre, email, password, role } = req.body;
+  const usuario = new Usuario({ nombre, email, password, role });
+
+  //Encritarp la contrase;a
+  const salt = bcryptjs.genSaltSync();
+  usuario.password = bcryptjs.hashSync(password, salt);
+
+  //Guardar en BD
+
+  await usuario.save();
+
+  res.json({
+    msg: "post API controllador",
+    usuario,
+  });
+};
+
+const usuariosPut = async (req, res = response) => {
+  const { id } = req.params;
+
+  const { _id, password, google, email, ...resto } = req.body;
+  //TODO validar contra base de datos
+
+  if (password) {
+    const salt = bcryptjs.genSaltSync();
+    resto.password = bcryptjs.hashSync(password, salt);
   }
 
+  const usuario = await Usuario.findByIdAndUpdate(id, resto);
 
-  const usuariosPost = (req, res = response) => {
-    const body = req.body;
+  res.json(usuario);
+};
 
-    res.json({
-  
-      msg: 'post API controllador',
-      body
-    });
-  };
+const usuariosPatch = (req, res = response) => {
+  res.json({
+    msg: "Patch API controllador",
+  });
+};
 
-  const usuariosPut = (req, res = response) => {
+const usuariosDelete = async (req, res = response) => {
 
-    const { id } = req.params;
-    res.json({
-  
-      msg: 'Put API controllador',
-      id
-    });
-  };
+  const {id} = req.params;
 
-  const usuariosPatch = (req, res = response) => {
-    res.json({
-  
-      msg: 'Patch API controllador'
-    });
-  };
+  //fisicamente
+  //  const usuario = await Usuario.findByIdAndDelete(id);
 
-  const usuariosDelete= (req, res = response) => {
-    res.json({
-  
-      msg: 'delete API controllador'
-    });
-  };
+  const usuario = await Usuario.findByIdAndUpdate(id, {estado:false});
 
-  module.exports = {
-    usuariosGet,
-    usuariosPost,
-    usuariosPut,
-    usuariosPatch,
-    usuariosDelete
+  res.json({
+  id
+  });
+};
 
-  }
-
-
+module.exports = {
+  usuariosGet,
+  usuariosPost,
+  usuariosPut,
+  usuariosPatch,
+  usuariosDelete,
+};
