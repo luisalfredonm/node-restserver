@@ -6,7 +6,7 @@ const bcryptjs = require("bcryptjs");
 const Usuario = require("../models/usuario");
 
 const usuariosGet = async (req = request, res = response) => {
-  const { limite = 5, desde = 0 } = req.query;
+  const { limite = 15, desde = 0 } = req.query;
 
   const query = { estado: true };
 
@@ -17,7 +17,7 @@ const usuariosGet = async (req = request, res = response) => {
 
   res.json({
     total,
-    usuarios
+    usuarios,
   });
 };
 
@@ -62,16 +62,24 @@ const usuariosPatch = (req, res = response) => {
 };
 
 const usuariosDelete = async (req, res = response) => {
-
-  const {id} = req.params;
+  const { id } = req.params;
+  const uid = req.uid;
 
   //fisicamente
   //  const usuario = await Usuario.findByIdAndDelete(id);
 
-  const usuario = await Usuario.findByIdAndUpdate(id, {estado:false});
+  const usuario = await Usuario.findByIdAndUpdate(id, { estado: false });
+
+  //trer informacion del usuario autenticado
+
+  const usuarioAutenticado = req.usuario;
+
+
 
   res.json({
-  id
+    usuario,
+    usuarioAutenticado,
+    uid,
   });
 };
 
