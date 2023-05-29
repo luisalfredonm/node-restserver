@@ -13,12 +13,12 @@ const  esRoleValido = async (role = '') => {
 
 
 
-const emailExiste = async (email = '') => {
+const emailExiste = async (correo = '') => {
     //Verificar si el correo existe
-    const existeEmail = await Usuario.findOne({ email });
+    const existeEmail = await Usuario.findOne({ correo });
 
   if (existeEmail) {
-    throw new Error(`El email ${email} ya existe en la base de datos`)
+    throw new Error(`El email ${correo} ya existe en la base de datos`)
     
   }
 

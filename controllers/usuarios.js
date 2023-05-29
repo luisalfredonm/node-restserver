@@ -22,8 +22,8 @@ const usuariosGet = async (req = request, res = response) => {
 };
 
 const usuariosPost = async (req, res = response) => {
-  const { nombre, email, password, role } = req.body;
-  const usuario = new Usuario({ nombre, email, password, role });
+  const { nombre, correo, password, role } = req.body;
+  const usuario = new Usuario({ nombre, correo, password, role });
 
   //Encritarp la contrase;a
   const salt = bcryptjs.genSaltSync();
@@ -42,7 +42,7 @@ const usuariosPost = async (req, res = response) => {
 const usuariosPut = async (req, res = response) => {
   const { id } = req.params;
 
-  const { _id, password, google, email, ...resto } = req.body;
+  const { _id, password, google, correo, ...resto } = req.body;
   //TODO validar contra base de datos
 
   if (password) {
